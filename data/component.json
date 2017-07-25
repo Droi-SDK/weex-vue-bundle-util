@@ -1,0 +1,43 @@
+{
+  "built-in": {
+    "div": 0,
+    "text": 0,
+    "image": 0,
+    "scroller": 0,
+    "list": 0,
+    "waterfall": 0,
+    "cell": 0,
+    "header": 0,
+    "loading": 0,
+    "refresh": 0,
+    "loading-indicator": 0,
+    "a": 0,
+    "input": 0,
+    "switch": 0,
+    "slider": 0,
+    "slider-neighbor": 0,
+    "indicator": 0,
+    "cycleslider": 0,
+    "textarea": 0,
+    "video": 0,
+    "web": 0
+  },
+  "ali": {
+    "tabheader": 0,
+    "mask": 0,
+    "richtext": 0
+  },
+  "ignore": {
+    "div": 0,
+    "text": 0,
+    "image": 0,
+    "scroller": 0,
+    "list": 0,
+    "waterfall": 0,
+    "cell": 0,
+    "header": 0,
+    "loading": 0,
+    "refresh": 0,
+    "loading-indicator": 0
+  }
+}
