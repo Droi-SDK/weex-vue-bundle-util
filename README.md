@@ -1,19 +1,22 @@
 # weex-vue-bundle-util
 
-This tool is for weex-vue-render to bundle the components and modules which you have used in your projects. You can just use the export function to analyse the used built-in components and modules, which returns a object includes `components` and `modules` fields. You just packing up them with the render-core (`weex-vue-render/dist/index.core.js`) in your project's entry file. By doing this you can pack up your render in the minimum size without all the irrelative codes of components and mdoules you haven't used in your project.
+This tool is for weex-vue-render to bundle the components and modules which you have used in your projects. You can just use the export function to analyse the used built-in components and modules, which returns a promise with a object includes `components` and `modules` fields. You just packing up them with the render-core (`weex-vue-render/dist/index.core.js`) in your project's entry file. By doing this you can pack up your render in the minimum size without all the irrelative codes of components and mdoules you haven't used in your project.
 
 ## how to use
 
-just use the module as a function, pass in the webpack config and webpack it self, and run it before your compiling process.
+just use the module as a function, pass in the webpack config and webpack it self, and run it before your compiling process. The function returns a promise:
 
 ```javascript
 const webpack = require('webpack')
 const config = require('your-projects-webpack-config.js')
 const scan = require('weex-vue-bundle-util')
-const { components, modules } = scan(webpack, config)
-packYourProjectWith(components, modules)
-// if you are using @ali/weex-vue-render, please pass a options with 'ali' set like the codes below.
-// scan(webpack, config, { ali: true })
+scan(webpack, config)
+  .then(function (res) {
+    const { components, modules } = res
+    packYourProjectWith(components, modules)
+    // if you are using @ali/weex-vue-render, please pass a options with 'ali' set like the codes below.
+    // scan(webpack, config, { ali: true })
+  })
 ```
 
 ## components and modules
