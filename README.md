@@ -19,6 +19,10 @@ scan(webpack, config)
   })
 ```
 
+## NOTES
+
+This tool can only get the components used in the **template** which should be able to be processed in **vue-loader**. The components you use in **render function** will be ignored.
+
 ## components and modules
 
 Here is a list about components and modules you can pack into your project. The aliweex only built packages list should be found in gitlab repo of @ali/weex-vue-render.

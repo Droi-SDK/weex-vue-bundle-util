@@ -2,6 +2,10 @@
   "name": "weex-vue-bundle-util",
   "version": "0.1.1",
   "description": "bundle tool for weex-vue-render.",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:weexteam/weex-vue-bundle-util.git"
+  },
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
