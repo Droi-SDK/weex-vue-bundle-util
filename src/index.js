@@ -45,7 +45,7 @@ var getDeferred = function () {
   return deferred
 }
 
-var genVueOptions = function (options, nodeCountMap, checkMap) {
+var genVueOptions = function (options, checkMap, allMap) {
   if (typeof options === 'object') {
     if (!options.compilerModules) {
       options.compilerModules = []
@@ -55,17 +55,23 @@ var genVueOptions = function (options, nodeCountMap, checkMap) {
         if (checkMap.hasOwnProperty(el.tag)) {
           checkMap[el.tag]++
         }
+        if (!allMap[el.tag]) {
+          allMap[el.tag] = 1
+        }
+        else {
+          allMap[el.tag]++
+        }
       }
     })
   }
   return options
 }
 
-var parseAssets = function (assets) {
+var parseAssets = function (assets, output) {
   var defer = getDeferred()
   var nodes = {}
   assets.forEach(function (asset) {
-    var p = path.resolve(process.cwd(), asset.name)
+    var p = path.resolve(output.path, asset.name)
     var file = fs.readFileSync(p)
     var walk = astw(file.toString('utf8'))
     var parentNode
@@ -114,6 +120,7 @@ function scan (webpack, webpackConfig, options) {
       var componentMap = {}
       var moduleMap = {}
       var nodes = {}
+      var allNodes = {}
 
       for (var key in builtInComponentMap) {
         nodes[key] = 0
@@ -140,21 +147,21 @@ function scan (webpack, webpackConfig, options) {
       if (!rules) {
         return console.error('webpack config missing rules.')
       }
-      let is2 = !!mod.rules
+      var is2 = !!mod.rules
       if (is2) {  // webpack 2.0
         rules.forEach(function (rule) {
           if (rule.use && isArray(rule.use)) { // use multiple loaders.
-            let vueLoaderIndex = -1
+            var vueLoaderIndex = -1
             rule.use.forEach(function (use, idx) {
               if (typeof use === 'string' && use.match(/vue-loader/)) {
                 vueLoaderIndex = idx
               }
               else if (typeof use === 'object' && use.loader.match(/vue-loader/)) {
-                use.options = genVueOptions(use.options, nodes, nodes)
+                use.options = genVueOptions(use.options, nodes, allNodes)
               }
             })
             if (vueLoaderIndex > -1) {
-              var options = genVueOptions({}, nodes, nodes)
+              var options = genVueOptions({}, nodes, allNodes)
               rules.use[vueLoaderIndex] = {
                 loader: use,
                 options
@@ -164,7 +171,7 @@ function scan (webpack, webpackConfig, options) {
         })
       }
       else {  // webpack 1.0
-        config.vue = genVueOptions(config.vue || {}, nodes, nodes)
+        config.vue = genVueOptions(config.vue || {}, nodes, allNodes)
       }
       var loaders = webpackConfig.module.loaders
       webpack(webpackConfig, function (err, stats) {
@@ -178,7 +185,7 @@ function scan (webpack, webpackConfig, options) {
             var error = info.errors
             console.error('[weex-vue-bundle-util] webpack compiling error:', error)
           }
-          parseAssets(info.assets)
+          parseAssets(info.assets, config.output)
             .then(function (modules) {
               var pkgMap = {}
               var res = {
