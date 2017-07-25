@@ -1,0 +1,76 @@
+{
+  "built-in": {
+    "component": {
+      "div": null,
+      "text": null,
+      "image": null,
+      "scroller": null,
+      "list": null,
+      "waterfall": null,
+      "cell": null,
+      "header": null,
+      "loading": null,
+      "refresh": null,
+      "loading-indicator": null,
+      "a": "weex-vue-a",
+      "input": "weex-vue-input",
+      "switch": "weex-vue-switch",
+      "slider": "weex-vue-slider",
+      "slider-neighbor": "weex-vue-slider",
+      "indicator": "weex-vue-slider",
+      "cycleslider": "weex-vue-slider",
+      "textarea": "weex-vue-textarea",
+      "video": "weex-vue-video",
+      "web": "weex-vue-web"
+    },
+    "module": {
+      "animation": "weex-vue-animation",
+      "clipboard": "weex-vue-clipboard",
+      "dom": "weex-vue-dom",
+      "event": "weex-vue-event",
+      "geolocation": "weex-vue-geolocation",
+      "globalEvent": "weex-vue-global-event",
+      "modal": "weex-vue-modal",
+      "navigator": "weex-vue-nav",
+      "storage": "weex-vue-storage",
+      "stream": "weex-vue-stream",
+      "websocket": "weex-vue-websocket",
+      "webview": "weex-vue-webview"
+    }
+  },
+  "ali": {
+    "component": {
+      "tabheader": "@ali/weex-vue-tabheader",
+      "mask": "@ali/weex-vue-mask",
+      "richtext": "@ali/weex-vue-richtext"
+    },
+    "module": {
+      "audio": "@ali/weex-vue-audio",
+      "connection": "@ali/weex-vue-connection",
+      "cookie": "@ali/weex-vue-cookie",
+      "device": "@ali/weex-vue-device",
+      "geolocation": "@ali/weex-vue-geolocation",
+      "globalEvent": "@ali/weex-vue-global-event",
+      "mtop": "@ali/weex-vue-mtop",
+      "navigationBar": "@ali/weex-vue-navigation-bar",
+      "navigator": "@ali/weex-vue-navigator",
+      "pageInfo": "@ali/weex-vue-page-info",
+      "userTrack": "@ali/weex-vue-user-track",
+      "user": "@ali/weex-vue-user",
+      "windvane": "@ali/weex-vue-windvane"
+    }
+  },
+  "ignore": [
+    "div",
+    "text",
+    "image",
+    "scroller",
+    "list",
+    "waterfall",
+    "cell",
+    "header",
+    "loading",
+    "refresh",
+    "loading-indicator"
+  ]
+}

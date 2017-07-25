@@ -50,7 +50,7 @@ Here is a list about components and modules you can pack into your project. The 
 | weex-vue-geolocation | geolocation |
 | weex-vue-global-event | globalEvent |
 | weex-vue-modal | modal |
-| weex-vue-navigator | navigator |
+| weex-vue-nav | navigator |
 | weex-vue-storage | storage |
 | weex-vue-stream | stream |
 | weex-vue-websocket | websocket |

@@ -3,14 +3,14 @@ var astw = require('astw-babylon')
 var path = require('path')
 var fs = require('fs')
 
-var backupComponentInfo = require('../data/component.json')
-var dataUrl = 'http://g-assets.daily.taobao.net/weex/weex-vue-bundle-tool/component.json'
+var backupInfo = require('../data/info.json')
+var dataUrl = 'http://g.alicdn.com/weex/weex-vue-bundle-tool/info.json'
 
 var getMetaInfo = function () {
   return new Promise(function (resolve, reject) {
     request(dataUrl, function (err, res, body) {
       if (err) {
-        resolve(backupComponentInfo)
+        resolve(backupInfo)
       }
       else {
         resolve(JSON.parse(body))
@@ -104,22 +104,37 @@ var parseAssets = function (assets) {
 function scan (webpack, webpackConfig, options) {
   return getMetaInfo()
     .then(function (info) {
-      var builtInComponentMap = info['built-in']
-      var aliComponentMap = info['ali']
-      var ignoreComponentMap = info['ignore']
+      var builtInPkgMap = info['built-in']
+      var builtInComponentMap = builtInPkgMap.component
+      var builtInModuleMap = builtInPkgMap.module
+      var aliPkgMap = info['ali']
+      var aliComponentMap = aliPkgMap.component
+      var aliModuleMap = aliPkgMap.module
+      var ignoreComponents = info['ignore']
+      var componentMap = {}
+      var moduleMap = {}
+      var nodes = {}
 
-      var checkComponentMap = extend({}, builtInComponentMap)
-      if (options && options.ali) {
-        extend(checkComponentMap, aliComponentMap)
+      for (var key in builtInComponentMap) {
+        nodes[key] = 0
+        componentMap[key] = builtInComponentMap[key]
       }
-      for (var key in ignoreComponentMap) {
-        delete checkComponentMap[key]
+      extend(moduleMap, builtInModuleMap)
+      ignoreComponents.forEach(function (comp) {
+        delete nodes[comp]
+        delete componentMap[comp]
+      })
+      if (options && options.ali) {
+        for (var key in aliComponentMap) {
+          nodes[key] = 0
+          componentMap[key] = aliComponentMap[key]
+        }
+        extend(moduleMap, aliModuleMap)
       }
 
       var config = extend({}, webpackConfig)
       var deferred = getDeferred()
 
-      var nodes = extend({}, checkComponentMap)
       var mod = config.module
       var rules = mod.rules || mod.loaders
       if (!rules) {
@@ -165,10 +180,27 @@ function scan (webpack, webpackConfig, options) {
           }
           parseAssets(info.assets)
             .then(function (modules) {
+              var pkgMap = {}
               var res = {
-                modules,
-                components: nodes
+                components: {},
+                modules: {},
+                pkgs: []
               }
+              for (var key in nodes) {
+                if (nodes[key] > 0) {
+                  var pkgName = componentMap[key]
+                  res.components[key] = pkgName
+                  pkgMap[pkgName] = true
+                }
+              }
+              for (var key in modules) {
+                if (modules[key] > 0 && moduleMap[key]) {
+                  var pkgName = moduleMap[key]
+                  res.modules[key] = pkgName
+                  pkgMap[pkgName] = true
+                }
+              }
+              res.pkgs = Object.keys(pkgMap)
               deferred.resolve(res)
             })
         }
