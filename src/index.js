@@ -67,7 +67,8 @@ var genVueOptions = function (options, checkMap, allMap) {
   return options
 }
 
-var parseAssets = function (assets, output) {
+var parseAssets = function (assets, options) {
+  var output = options && options.output
   var defer = getDeferred()
   var nodes = {}
   assets.forEach(function (asset) {
@@ -79,7 +80,7 @@ var parseAssets = function (assets, output) {
       if (node.name === 'requireModule'
         && (parentNode = node.parent)
         && parentNode.type === 'MemberExpression'
-        && parentNode.object.name === 'weex'
+        // && parentNode.object.name === 'weex'
         && (parentNode = parentNode.parent)
         && parentNode.type === 'CallExpression') {
         var value = parentNode.arguments[0].value
@@ -185,7 +186,10 @@ function scan (webpack, webpackConfig, options) {
             var error = info.errors
             console.error('[weex-vue-bundle-util] webpack compiling error:', error)
           }
-          parseAssets(info.assets, config.output)
+          var parseAssetsOptions = {
+            output: config.output
+          }
+          parseAssets(info.assets, parseAssetsOptions)
             .then(function (modules) {
               var pkgMap = {}
               var res = {
