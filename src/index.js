@@ -108,7 +108,7 @@ var outputImportEntryFile = function (filePath, pkgs) {
       })
       + 'Mod'
     names.push(name)
-    try {/
+    try {
       var version = require(`${pkgName}/package.json`).version
     } catch (err) {
       console.log(` => install ${pkgName}...`)
@@ -116,7 +116,7 @@ var outputImportEntryFile = function (filePath, pkgs) {
     }
     return `import ${name} from '${pkgName}'\n`
   }).join('')
-  str += `export default [\n${  names.join(',  \n')}\n]\n`
+  str += `export default [\n  ${names.join(',  \n')}\n]\n`
   return fs.writeFileSync(filePath, str)
 }
 
