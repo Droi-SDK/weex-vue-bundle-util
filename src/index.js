@@ -2,6 +2,7 @@ var request = require('request')
 var astw = require('astw-babylon')
 var path = require('path')
 var fs = require('fs')
+var exec = require('child_process').execSync
 
 var backupInfo = require('../data/info.json')
 var dataUrl = 'http://g.alicdn.com/weex/weex-vue-bundle-tool/info.json'
@@ -97,6 +98,28 @@ var parseAssets = function (assets, options) {
   return defer.promise
 }
 
+var outputImportEntryFile = function (filePath, pkgs) {
+  var names = []
+  var str = pkgs.map(function (pkgName) {
+    var name = pkgName
+      .replace('weex-vue-', '')
+      .replace(/-(\w)/g, function ($0, $1) {
+        return $1.toUpperCase()
+      })
+      + 'Mod'
+    names.push(name)
+    try {/
+      var version = require(`${pkgName}/package.json`).version
+    } catch (err) {
+      console.log(` => install ${pkgName}...`)
+      exec(`npm install ${pkgName}`)
+    }
+    return `import ${name} from '${pkgName}'\n`
+  }).join('')
+  str += `export default [\n${  names.join(',  \n')}\n]\n`
+  return fs.writeFileSync(filePath, str)
+}
+
 /**
  * webpack config structure:
  * 1. http://webpack.github.io/docs/using-loaders.html#configuration
@@ -107,6 +130,7 @@ var parseAssets = function (assets, options) {
 /**
  * options:
  *  - ali: Boolean. build for @ali/weex-vue-render, with ali built-in components.
+ *  - output: String. file path to output import statements.
  */
 function scan (webpack, webpackConfig, options) {
   return getMetaInfo()
@@ -212,6 +236,10 @@ function scan (webpack, webpackConfig, options) {
                 }
               }
               res.pkgs = Object.keys(pkgMap)
+              if (res.pkgs && res.pkgs.length > 0 && options && options.output) {
+                var outputPath = options.output
+                outputImportEntryFile(outputPath, res.pkgs)
+              }
               deferred.resolve(res)
             })
         }

@@ -19,6 +19,20 @@ scan(webpack, config)
   })
 ```
 
+## OPTIONS
+
+* `ali`: If you use `@ali/weex-vue-render`, please add this and set to `true`
+* `output`: If you want to generate a import entry file for the plugins, just set a output path for this file. You should use a absolute path. The generated file is like this:
+
+  ```javascript
+  import a from 'weex-vue-a'
+  import animation from 'weex-vue-animation'
+  export default [
+    a,
+    animation
+  ]
+  ```
+
 ## NOTES
 
 This tool can only get the components used in the **template** which should be able to be processed in **vue-loader**. The components you use in **render function** will be ignored.
