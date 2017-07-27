@@ -145,6 +145,7 @@ var processPkgs = function (pkgs, options) {
   var output = options.output
   var names = []
   var peerDependencies = {}
+  var shouldImportPeerDependencies = {}
   var str = pkgs.map(function (pkgName) {
     var name = getPkgModName(pkgName)
     names.push(name)
@@ -165,9 +166,12 @@ var processPkgs = function (pkgs, options) {
     return `import ${name} from '${pkgName}'\n`
   }).join('')
   // for peerDependencies: just import, no export to default array.
-  Object.keys(peerDependencies).map(function (pkgName) {
-    return `import from '${pkgName}'\n`
-  })
+  str = Object.keys(peerDependencies).map(function (pkgName) {
+    if (ignorePeerDependencies.indexOf(pkgName) <= -1) {
+      return `import '${pkgName}'\n`
+    }
+    else return ''
+  }).join('') + str
   str += `export default [\n  ${names.join(',\n  ')}\n]\n`
   if (output) {
     fs.writeFileSync(output, str)
