@@ -21,8 +21,8 @@ scan(webpack, config)
 
 ## OPTIONS
 
-* `ali`: If you use `@ali/weex-vue-render`, please add this and set to `true`
-* `output`: If you want to generate a import entry file for the plugins, just set a output path for this file. You should use a absolute path. The generated file is like this:
+* `ali`: Boolean. Optional. False by Default. If you use `@ali/weex-vue-render`, please add this and set to `true`.
+* `output`: String. Optional. If you want to generate a import entry file for the plugins, just set a output path for this file. You should use a absolute path. The generated file is like this:
 
   ```javascript
   import a from 'weex-vue-a'
@@ -32,6 +32,9 @@ scan(webpack, config)
     animation
   ]
   ```
+
+* `allowInstallPlugins`: Boolean. Optional. False by default. If true, the dependend plugins will be auto installled, and only this be true the peerDependencies of the plugins could be analyzed and output to the result object.
+* `allowInstallPluginDependencies`: Boolean. Optional. False by default. If true, the peerDependencies of the plugins (e.g: '@ali/lib-windvane' for 'windvane' API module) will be auto installed and be imported in the plugin entry file.
 
 ## NOTES
 

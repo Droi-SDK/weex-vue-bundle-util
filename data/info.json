@@ -42,7 +42,9 @@
     "component": {
       "tabheader": "@ali/weex-vue-tabheader",
       "mask": "@ali/weex-vue-mask",
-      "richtext": "@ali/weex-vue-richtext"
+      "richtext": "@ali/weex-vue-richtext",
+      "appbar": "@ali/weex-vue-appbar",
+      "parallax": "@ali/weex-vue-parallax"
     },
     "module": {
       "audio": "@ali/weex-vue-audio",
@@ -57,7 +59,8 @@
       "pageInfo": "@ali/weex-vue-page-info",
       "userTrack": "@ali/weex-vue-user-track",
       "user": "@ali/weex-vue-user",
-      "windvane": "@ali/weex-vue-windvane"
+      "windvane": "@ali/weex-vue-windvane",
+      "blurEx": "@ali/weex-vue-blur-ex"
     }
   },
   "ignore": [

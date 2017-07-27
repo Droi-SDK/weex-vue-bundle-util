@@ -1,11 +1,19 @@
-var request = require('request')
-var astw = require('astw-babylon')
 var path = require('path')
 var fs = require('fs')
 var exec = require('child_process').execSync
+var request = require('request')
+var astw = require('astw-babylon')
+var resolveCwd = require('resolve-cwd')
+var semver = require('semver')
 
 var backupInfo = require('../data/info.json')
 var dataUrl = 'http://g.alicdn.com/weex/weex-vue-bundle-tool/info.json'
+
+var ignorePeerDependencies = [
+  'weex-vue-render',
+  '@ali/weex-vue-render',
+  'vue-loader'
+]
 
 var getMetaInfo = function () {
   return new Promise(function (resolve, reject) {
@@ -98,26 +106,75 @@ var parseAssets = function (assets, options) {
   return defer.promise
 }
 
-var outputImportEntryFile = function (filePath, pkgs) {
+var installPkg = function (name, versionRange) {
+  var fullName = `${name}${versionRange ? '@' + versionRange : ''}`
+  var pkgMgrTool = name.match(/^@ali\//) ? 'tnpm' : 'npm'
+  console.log(` => ${pkgMgrTool} install ${fullName}...`)
+  return exec(`${pkgMgrTool} install ${name}`)
+}
+
+var getInstalledPkgInfo = function (name, versionRange) {
+  try {
+    var pkgPath = resolveCwd(`${name}/package.json`)
+    var pkg = require(pkgPath)
+    if (versionRange) {
+      var isSatisfy = semver.satisfies(pkg.version, versionRange)
+      if (!isSatisfy) {
+        installPkg(name, versionRange)
+      }
+    }
+    return pkg
+  } catch (err) {
+    installPkg(name, versionRange)
+    return getInstalledPkgInfo(name)
+  }
+}
+
+var getPkgModName = function (pkgName) {
+  return pkgName
+    .replace(/@ali\//, 'ali-')
+    .replace('weex-vue-', '')
+    .replace(/-(\w)/g, function ($0, $1) {
+      return $1.toUpperCase()
+    })
+    + 'Mod'
+}
+
+var processPkgs = function (pkgs, options) {
+  var options = options || {}
+  var output = options.output
   var names = []
+  var peerDependencies = {}
   var str = pkgs.map(function (pkgName) {
-    var name = pkgName
-      .replace('weex-vue-', '')
-      .replace(/-(\w)/g, function ($0, $1) {
-        return $1.toUpperCase()
-      })
-      + 'Mod'
+    var name = getPkgModName(pkgName)
     names.push(name)
-    try {
-      var version = require(`${pkgName}/package.json`).version
-    } catch (err) {
-      console.log(` => install ${pkgName}...`)
-      exec(`npm install ${pkgName}`)
+    if (options.allowInstallPlugins) {
+      var pkg = getInstalledPkgInfo(pkgName)
+      if (pkg) {
+        var depPkgs = pkg.peerDependencies
+        extend(peerDependencies, depPkgs)
+        if (options.allowInstallPluginDependencies) {
+          for (var key in depPkgs) {
+            if (ignorePeerDependencies.indexOf(key) <= -1) {
+              getInstalledPkgInfo(key, depPkgs[key])
+            }
+          }
+        }
+      }
     }
     return `import ${name} from '${pkgName}'\n`
   }).join('')
-  str += `export default [\n  ${names.join(',  \n')}\n]\n`
-  return fs.writeFileSync(filePath, str)
+  // for peerDependencies: just import, no export to default array.
+  Object.keys(peerDependencies).map(function (pkgName) {
+    return `import from '${pkgName}'\n`
+  })
+  str += `export default [\n  ${names.join(',\n  ')}\n]\n`
+  if (output) {
+    fs.writeFileSync(output, str)
+  }
+  return {
+    peerDependencies
+  }
 }
 
 /**
@@ -131,6 +188,13 @@ var outputImportEntryFile = function (filePath, pkgs) {
  * options:
  *  - ali: Boolean. build for @ali/weex-vue-render, with ali built-in components.
  *  - output: String. file path to output import statements.
+ *  - allowInstallPlugins: Boolean. If true, the dependend plugins will be auto installled, and
+ *    only this be true the peerDependencies of the plugins could be analyzed and
+ *    output to the result object.
+ *  - allowInstallPluginDependencies: Boolean. If true, the peerDependencies of the plugins
+ *    will be auto installed and be imported in the plugin entry file.
+ *  - allowInstallRenderCore: Boolean. If true and the dependend version of weex-vue-render
+ *    in the peerDependencies of the plugins will be auto installed.
  */
 function scan (webpack, webpackConfig, options) {
   return getMetaInfo()
@@ -237,8 +301,7 @@ function scan (webpack, webpackConfig, options) {
               }
               res.pkgs = Object.keys(pkgMap)
               if (res.pkgs && res.pkgs.length > 0 && options && options.output) {
-                var outputPath = options.output
-                outputImportEntryFile(outputPath, res.pkgs)
+                res.peerDependencies = processPkgs(res.pkgs, options)
               }
               deferred.resolve(res)
             })
