@@ -197,8 +197,6 @@ var processPkgs = function (pkgs, options) {
  *    output to the result object.
  *  - allowInstallPluginDependencies: Boolean. If true, the peerDependencies of the plugins
  *    will be auto installed and be imported in the plugin entry file.
- *  - allowInstallRenderCore: Boolean. If true and the dependend version of weex-vue-render
- *    in the peerDependencies of the plugins will be auto installed.
  */
 function scan (webpack, webpackConfig, options) {
   return getMetaInfo()
